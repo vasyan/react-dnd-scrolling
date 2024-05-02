@@ -6,7 +6,7 @@ import './App.css'
 
 export default function App () {
   const [items, setItems] = useState(data);
-  const [scrollDir, setScrollDir] = useState(0);
+  const [scrollDir, setScrollDir] = useState<-1 | 0 | 1>(0);
   const scrollSpeedRef = useRef(1);
   const scrollEl = useRef<HTMLDivElement>(null);
   const monitor = useDragDropManager().getMonitor();
@@ -24,12 +24,13 @@ export default function App () {
     }
 
     const SCROLL_SPEED = 10;
-    scrollEl.current?.scrollBy(0, SCROLL_SPEED * scrollDir * Math.abs(scrollSpeedRef.current));
+    const power = SCROLL_SPEED * scrollDir * Math.min(1, Math.abs(scrollSpeedRef.current));
+    scrollEl.current?.scrollBy(0, power);
   }, 16, scrollDir !== 0);
 
   useEffect(() => {
     const TRESHOLD = 120; // vertical distance from the edge
-    const ELEMENT_HEIGHT = 42; // could be dynalically calculated
+    const ELEMENT_HEIGHT = 44; // could be dynalically calculated
 
     return monitor.subscribeToOffsetChange(() => {
       const offset = monitor.getSourceClientOffset()?.y;
@@ -39,7 +40,7 @@ export default function App () {
         return;
       }
 
-      let direction = 0;
+      let direction: typeof scrollDir = 0;
       scrollSpeedRef.current = 1;
       if (offset > rect.bottom - (TRESHOLD + ELEMENT_HEIGHT)) {
         scrollSpeedRef.current = (offset - (rect.bottom - (TRESHOLD + ELEMENT_HEIGHT))) / TRESHOLD;
@@ -53,14 +54,10 @@ export default function App () {
     });
   }, [monitor]);
 
-  // TODO: find a way to fix memoisation
   const onChangePosition = useCallback((from: number, to: number, hoveredItem: DragItem) => {
-    if (scrollDir !== 0) return true;
-
-    // is it a must to have a function here?
     setItems(prev => move(prev, from, to)); 
     hoveredItem.index = to;
-  }, [setItems, scrollDir]);
+  }, [setItems]);
 
   return (
     <>
@@ -98,6 +95,7 @@ interface ItemProps {
 function Item (props: ItemProps) {
   const { data, index, onChangePosition } = props;
   const ref = useRef<HTMLDivElement>(null);
+  const [animationDirection, setAnimationDirection] = useState<number>(0);
 
   const [dropProps, drop] = useDrop<DragItem, unknown, DropCollectedProps>({
     accept: 'my-item-type',
@@ -136,18 +134,27 @@ function Item (props: ItemProps) {
 
   const [{ isDragging }, drag] = useDrag<DragItem, unknown, DragCollectedProps>({
     type: 'my-item-type',
-    // !!!
-    item: () => ({
-      index,
-    }),
+    item: { index },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     })
   });
 
+  const prevIndex = useRef(index);
+
+  useEffect(() => {
+    if (prevIndex.current === index) return;
+    setAnimationDirection(index - prevIndex.current);
+    prevIndex.current = index;
+  }, [dropProps.handlerId, index])
+
   drag(drop(ref));
 
-  const className = classNames('item', { 'dragging': isDragging })
+  const className = classNames('item', {
+    'dragging': isDragging,
+    'move-up': animationDirection > 0,
+    'move-down': animationDirection < 0,
+  });
 
   return (
     <div

@@ -67,3 +67,24 @@
   width: 24px;
   height: 24px;
 }
+
+@keyframes moveUp {
+  0% { transform: translate3d(0px, -44px, 0px); }
+  100% { transform: translate3d(0px, 0px, 0px); }
+}
+@keyframes moveDown {
+  0% { transform: translate3d(0px, 44px, 0px); }
+  100% { transform: translate3d(0px, 0px, 0px); }
+}
+
+.move-up {
+  animation-name: moveUp;
+  animation-duration: .6s;
+  animation-timing-function: ease-in-out;
+}
+
+.move-down {
+  animation-name: moveDown;
+  animation-duration: .6s;
+  animation-timing-function: ease-in-out;
+}

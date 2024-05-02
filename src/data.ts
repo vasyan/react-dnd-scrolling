@@ -10,7 +10,7 @@ export const data: Cat[] = [
   { name: 'Adam', id: 3 },
   { name: 'Beker', id: 4 },
   { name: 'Uan', id: 5 },
-  { name: 'Smokey', id: 6 },
+  { name: 'Nikki', id: 6 },
   { name: 'Oreo', id: 7 },
   { name: 'Felix', id: 8 },
   { name: 'Sylvester', id: 9 },
