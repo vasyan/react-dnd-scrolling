@@ -29,6 +29,7 @@
   cursor: grab;
   display: flex;
   justify-content: center;
+  line-height: 24px;
 }
 .item-id {
   position: absolute;
@@ -79,12 +80,12 @@
 
 .move-up {
   animation-name: moveUp;
-  animation-duration: .6s;
+  animation-duration: .2s;
   animation-timing-function: ease-in-out;
 }
 
 .move-down {
   animation-name: moveDown;
-  animation-duration: .6s;
+  animation-duration: .2s;
   animation-timing-function: ease-in-out;
 }
